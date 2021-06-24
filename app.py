@@ -7,7 +7,25 @@ import matplotlib.pyplot as plt
 from bs4 import BeautifulSoup
 import requests
 import json
-import time
+# %matplotlib inline
+# import matplotlib.pyplot as plt
+# new sec lib
+import yfinance as yf
+import pandas as pd
+import cufflinks as cf
+import datetime
+# bitcoin
+import numpy as np
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+import tkinter
+# import matplotlib
+import cv2
+# matplotlib.use('Agg')
+# import matplotlib.pyplot as plt
+
+# lib end
 #---------------------------------#
 # New feature (make sure to upgrade your streamlit library)
 # pip install --upgrade streamlit
@@ -78,7 +96,7 @@ expander_bar.markdown("""
 # Page layout (continued)
 ## Divide page to 3 columns (col1 = sidebar, col2 and col3 = page contents)
 # col1 = st.sidebar
-col1, col2 = st.beta_columns((2,1))
+col1, col2 = st.beta_columns((1,1))
 
 #---------------------------------#
 # Sidebar + Main panel
@@ -203,3 +221,60 @@ else:
     plt.subplots_adjust(top = 1, bottom = 0)
     df_change['percentChange1h'].plot(kind='barh', color=df_change.positive_percent_change_1h.map({True: 'g', False: 'r'}))
     col2.pyplot(plt)
+
+
+
+# new section
+
+
+
+# App title
+# def app():
+st.markdown('''
+# Stock Price App
+Shown are the stock price data for query companies!
+**Credits**
+- App built by [Chanin Nantasenamat](https://medium.com/@chanin.nantasenamat) (aka [Data Professor](http://youtube.com/dataprofessor))
+- Built in `Python` using `streamlit`,`yfinance`, `cufflinks`, `pandas` and `datetime`
+''')
+st.write('---')
+
+col3, col4 = st.beta_columns((1,2))
+# col5 = st.beta_columns()
+
+
+# Sidebar
+col3.subheader('Query parameters')
+start_date = col3.date_input("Start date", datetime.date(2019, 1, 1))
+end_date = col3.date_input("End date", datetime.date(2021, 1, 31))
+
+# Retrieving tickers data
+ticker_list = pd.read_csv('https://raw.githubusercontent.com/dataprofessor/s-and-p-500-companies/master/data/constituents_symbols.txt')
+tickerSymbol = col3.selectbox('Stock ticker', ticker_list) # Select ticker symbol
+tickerData = yf.Ticker(tickerSymbol) # Get ticker data
+tickerDf = tickerData.history(period='1d', start=start_date, end=end_date) #get the historical prices for this ticker
+
+# Ticker information
+string_logo = '<img src=%s>' % tickerData.info['logo_url']
+col4.markdown(string_logo, unsafe_allow_html=True)
+
+string_name = tickerData.info['longName']
+col4.header('**%s**' % string_name)
+
+string_summary = tickerData.info['longBusinessSummary']
+col4.info(string_summary)
+
+# Ticker data
+st.header('**Ticker data**')
+st.write(tickerDf)
+
+# Bollinger bands
+st.header('**Bollinger Bands**')
+qf=cf.QuantFig(tickerDf,title='First Quant Figure',legend='top',name='GS')
+qf.add_bollinger_bands()
+fig = qf.iplot(asFigure=True)
+st.plotly_chart(fig)
+
+####
+#st.write('---')
+#st.write(tickerData.info)
