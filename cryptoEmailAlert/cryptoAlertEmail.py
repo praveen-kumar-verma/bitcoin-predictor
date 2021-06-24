@@ -20,7 +20,7 @@ from email.mime.multipart import MIMEMultipart as MM
 #create a function to get the price of a cryptocurrency
 def get_crypto_price(coin):
     #get URL
-    url= "https://www.google.com/search?q="+coin+"price"
+    url= "https://ycharts.com/indicators/"+coin+"_price"
     
     #making a request to the website
     HTML =requests.get(url)
@@ -29,7 +29,7 @@ def get_crypto_price(coin):
     soup = BeautifulSoup(HTML.text, 'html.parser')
     
     #Find the current price
-    text = soup.find("div", attrs={'class':'BNeawe iBp4i AP7Wnd'}).text
+    text = soup.find("div", attrs={'class':'key-stat-title'}).text
     
     #return text
     return text
@@ -114,14 +114,10 @@ def send_alert():
             
 
 
-# In[ ]:
-
-
 #sending alert
 send_alert()
 
 
-# In[ ]:
 
 
 
